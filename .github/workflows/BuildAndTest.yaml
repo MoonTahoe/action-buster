@@ -1,0 +1,75 @@
+name: Build and Test
+
+on: push
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install Dependencies
+        run: npm install
+# on: push
+
+# jobs:
+#   build:
+#     runs-on: unb
+#     steps:
+#       - uses: actions/checkout@v1
+#         if: github.event.pull_request.merged
+#         with:
+#           ref: refs/heads/master
+#       - uses: actions/setup-node@v1
+#         with:
+#           node-version: 14.x
+#       - name: Install Dependencies
+#         run: npm install
+#         env:
+#           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+#       - name: Setup Github Credentials
+#         run: |
+#           git config user.name $GITHUB_ACTOR
+#           git config user.email gh-actions-${GITHUB_ACTOR}@github.com
+#       - name: Bump Version Numbers
+#         run: npm run release
+#         env:
+#           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+#       - name: Push Changelog
+#         uses: ad-m/github-push-action@master
+#         with:
+#           github_token: ${{ secrets.PUSH_TOKEN }}
+#           tags: true
+#       - uses: expo/expo-github-action@v5
+#         with:
+#           expo-packager: npm
+#           expo-username: "${{ secrets.EXPO_CLI_USERNAME }}"
+#           expo-password: "${{ secrets.EXPO_CLI_PASSWORD }}"
+#           expo-cache: true
+#       - name: Build iOS App
+#         run: expo build:ios --non-interactive
+#         env:
+#           EXPO_APPLE_ID: ${{secrets.EXPO_APPLE_ID}}
+#           EXPO_APPLE_PASSWORD: ${{secrets.EXPO_APPLE_ID_PASSWORD}}
+#       - name: Download Artifact from expo
+#         run: mkdir build_artifacts; export EXPO_ARTIFACT_URL=$(expo url:ipa); cURL $EXPO_ARTIFACT_URL --output ./build_artifacts/$(basename $EXPO_ARTIFACT_URL);
+#       - name: Echo file
+#         run: echo $(basename $EXPO_ARTIFACT_URL)
+#       - name: Upload Artifact to Testflight
+#         run: xcrun altool --upload-app --type ios --file ./build_artifacts/$(basename $(expo url:ipa)) --username $APPLE_USER_NAME --password $APPLE_APP_SPECIFIC_PASSWORD
+#         env:
+#           APPLE_USER_NAME: ${{secrets.EXPO_APPLE_ID}}
+#           APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.EXPO_APPLE_APP_PASSWORD}}
+
+# name: Caching with npm
